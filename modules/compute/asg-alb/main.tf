@@ -1,0 +1,163 @@
+# modules/compute/asg-alb/main.tf
+# This module creates an Application Load Balancer (ALB) and an Auto Scaling Group (ASG)
+# for EC2 instances, typically used for hosting applications that are not ECS Fargate tasks.
+
+# Application Load Balancer
+resource "aws_lb" "main_alb" {
+  name               = "${var.environment}-${var.alb_name}"
+  internal           = var.alb_internal # True for internal ALB, false for public
+  load_balancer_type = "application"
+  security_groups    = [var.alb_security_group_id]
+  subnets            = var.subnet_ids # Can be public or private depending on 'internal' setting
+
+  tags = {
+    Name        = "${var.environment}-${var.alb_name}"
+    Environment = var.environment
+  }
+}
+
+# ALB Target Group
+resource "aws_lb_target_group" "main_tg" {
+  name        = "${var.environment}-${var.target_group_name}"
+  port        = var.container_port
+  protocol    = "HTTP"
+  vpc_id      = var.vpc_id
+  target_type = "instance" # For EC2 instances
+
+  health_check {
+    path                = var.health_check_path
+    protocol            = "HTTP"
+    matcher             = "200"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
+
+  tags = {
+    Name        = "${var.environment}-${var.target_group_name}"
+    Environment = var.environment
+  }
+}
+
+# ALB Listener (HTTP on port 80)
+resource "aws_lb_listener" "http" {
+  load_balancer_arn = aws_lb.main_alb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    target_group_arn = aws_lb_target_group.main_tg.arn
+    type             = "forward"
+  }
+
+  tags = {
+    Name        = "${var.environment}-${var.alb_name}-listener-http"
+    Environment = var.environment
+  }
+}
+
+# IAM Role for EC2 instances (if needed for AWS service access)
+resource "aws_iam_role" "ec2_instance_role" {
+  name = "${var.environment}-${var.alb_name}-ec2-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_instance_profile" "ec2_instance_profile" {
+  name = "${var.environment}-${var.alb_name}-ec2-profile"
+  role = aws_iam_role.ec2_instance_role.name
+}
+
+# Data source to get the latest Amazon Linux 2 AMI
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+  owners      = ["amazon"]
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+}
+
+# Launch Template for Auto Scaling Group
+resource "aws_launch_template" "main_lt" {
+  name_prefix   = "${var.environment}-${var.alb_name}-lt-"
+  image_id      = data.aws_ami.amazon_linux_2.id
+  instance_type = var.instance_type
+  key_name      = var.key_pair_name # Requires an existing EC2 key pair
+
+  vpc_security_group_ids = var.instance_security_group_ids
+
+  # Example user data script to install Nginx
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    sudo yum update -y
+    sudo amazon-linux-extras install nginx1 -y
+    sudo systemctl start nginx
+    sudo systemctl enable nginx
+    echo "<h1>Hello from ${var.environment} ${var.alb_name}</h1>" | sudo tee /usr/share/nginx/html/index.html
+  EOF
+  )
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ec2_instance_profile.name
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name        = "${var.environment}-${var.alb_name}-instance"
+      Environment = var.environment
+    }
+  }
+
+  tags = {
+    Environment = var.environment
+  }
+}
+
+# Auto Scaling Group
+resource "aws_autoscaling_group" "main_asg" {
+  name                 = "${var.environment}-${var.alb_name}-asg"
+  vpc_zone_identifier  = var.subnet_ids
+  desired_capacity     = var.desired_capacity
+  max_size             = var.max_size
+  min_size             = var.min_size
+  health_check_type    = "ELB" # Use ELB health checks
+  target_group_arns    = [aws_lb_target_group.main_tg.arn]
+  termination_policies = ["Default"]
+
+  launch_template {
+    id      = aws_launch_template.main_lt.id
+    version = "$Latest"
+  }
+
+  tag {
+    key                 = "Environment"
+    value               = var.environment
+    propagate_at_launch = true
+  }
+
+  # Ensure ASG is created after ALB and its listener
+  depends_on = [
+    aws_lb_listener.http,
+    aws_iam_instance_profile.ec2_instance_profile
+  ]
+}
