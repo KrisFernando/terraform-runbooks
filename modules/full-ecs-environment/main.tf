@@ -15,22 +15,6 @@ module "network" {
   environment        = var.environment
 }
 
-# Call the security group module for common security groups.
-module "common_security_groups" {
-  source = "../security-group" # Relative path to the security-group module
-
-  vpc_id      = module.network.vpc_id
-  environment = var.environment
-}
-
-# Call the ECS cluster module to create the ECS cluster resource.
-module "ecs_cluster" {
-  source = "../ecs-cluster" # Relative path to the ecs-cluster module
-
-  cluster_name = var.cluster_name
-  environment  = var.environment
-}
-
 module "ecs_container_asg_alb" {
   source = "../compute"
 
@@ -47,4 +31,20 @@ module "ecs_container_asg_alb" {
   min_size             = var.ecs_min_size
   health_check_path    = "/ecs-health" # Health check for ECS agent
   container_port       = 80 # Or relevant port for ECS agent
+}
+
+# Call the security group module for common security groups.
+module "common_security_groups" {
+  source = "../security-group" # Relative path to the security-group module
+
+  vpc_id      = module.network.vpc_id
+  environment = var.environment
+}
+
+# Call the ECS cluster module to create the ECS cluster resource.
+module "ecs_cluster" {
+  source = "../ecs-cluster" # Relative path to the ecs-cluster module
+
+  cluster_name = var.cluster_name
+  environment  = var.environment
 }
