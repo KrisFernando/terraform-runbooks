@@ -2,6 +2,12 @@
 
 ## Cluster Deployment
 
-- VPC, Subnets, IGW, NAT, SG
-- ECS Cluster
-- ALB, ASG, EC2
+- Network: VPC, Subnets, IGW, NAT, SG
+- Cluster: ECS Cluster
+- Compute: ALB, ASG, EC2
+
+## Static Website Deployment
+
+- Compute: S3 Bucket with Static Web Hosting
+- CDN: CloudFront
+- SSL: Certificate Manager (Sectigo import)
