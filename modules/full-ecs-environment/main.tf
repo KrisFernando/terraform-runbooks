@@ -31,11 +31,6 @@ module "ecs_cluster" {
   environment  = var.environment
 }
 
-# Optional: If using EC2 launch type for ECS tasks, call the asg-alb module
-# to provision the Auto Scaling Group and associated ALB for ECS container instances.
-# This ALB would typically be internal, and applications would use another ALB
-# (defined in their respective application modules) to expose their services.
-/*
 module "ecs_container_asg_alb" {
   source = "../compute/asg-alb"
 
@@ -50,8 +45,6 @@ module "ecs_container_asg_alb" {
   desired_capacity     = var.ecs_desired_capacity
   max_size             = var.ecs_max_size
   min_size             = var.ecs_min_size
-  key_pair_name        = var.key_pair_name # Requires an existing EC2 key pair
   health_check_path    = "/ecs-health" # Health check for ECS agent
   container_port       = 80 # Or relevant port for ECS agent
 }
-*/

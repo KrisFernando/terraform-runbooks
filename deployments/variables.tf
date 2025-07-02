@@ -8,13 +8,13 @@ variable "aws_region" {
 variable "state_file_bucket" {
   description = "AWS S3 Bucket for statefile."
   type = string
-  default = "value"
+  default = "its-cloud-web-tf-state-bucket"
 }
 
-variable "state_file_key_prefix" {
+variable "project-name" {
   description = "prefix for statefile."
   type = string
-  default = "value"
+  default = "main-cluster"
 }
 
 variable "terraform-state-lock-db" {

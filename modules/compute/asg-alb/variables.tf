@@ -54,11 +54,6 @@ variable "min_size" {
   type        = number
 }
 
-variable "key_pair_name" {
-  description = "The name of the EC2 Key Pair to use for instances."
-  type        = string
-}
-
 variable "health_check_path" {
   description = "The path for the ALB health check."
   type        = string

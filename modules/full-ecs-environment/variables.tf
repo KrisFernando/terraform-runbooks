@@ -34,8 +34,6 @@ variable "cluster_name" {
   type        = string
 }
 
-# Optional variables for EC2 launch type (uncomment if needed)
-/*
 variable "ecs_instance_type" {
   description = "The EC2 instance type for ECS container instances."
   type        = string
@@ -59,10 +57,3 @@ variable "ecs_min_size" {
   type        = number
   default     = 1
 }
-
-variable "key_pair_name" {
-  description = "The name of the EC2 Key Pair to use for ECS container instances."
-  type        = string
-  default     = "" # Provide a default or make it required if using EC2
-}
-*/
