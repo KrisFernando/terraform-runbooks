@@ -101,7 +101,6 @@ resource "aws_launch_template" "main_lt" {
   name_prefix   = "${var.environment}-${var.alb_name}-lt-"
   image_id      = data.aws_ami.amazon_linux_2.id
   instance_type = var.instance_type
-  key_name      = var.key_pair_name # Requires an existing EC2 key pair
 
   vpc_security_group_ids = var.instance_security_group_ids
 

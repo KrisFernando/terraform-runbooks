@@ -9,10 +9,10 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket         = "${var.state_file_bucket}" # Dynamic bucket name based on environment
-    key            = "${var.state_file_key_prefix}/${var.environment}/main-infrastructure.tfstate"
+    key            = "${project-name}/${var.environment}/${project-name}-tf-state-file.tfstate"
     region         = var.aws_region # State bucket region (can be different from resource region)
     encrypt        = true
-    dynamodb_table = "${terraform-state-lock-db}-${var.environment}" # Dynamic DynamoDB table
+    dynamodb_table = "${project-name}-tf-state-lock-db-${var.environment}" # Dynamic DynamoDB table
   }
 }
 
@@ -27,13 +27,11 @@ module "full_ecs_environment" {
   public_subnets     = var.public_subnets
   private_subnets    = var.private_subnets
   availability_zones = var.availability_zones
-  cluster_name       = "${var.environment}-main-cluster"
-  # If using EC2 launch type for ECS instances, uncomment and provide these:
-  # ecs_instance_type    = "t3.medium"
-  # ecs_desired_capacity = 2
-  # ecs_max_size         = 3
-  # ecs_min_size         = 1
-  # key_pair_name        = "your-ec2-key-pair"
+  cluster_name       = "${var.environment}-${project-name}"
+  ecs_instance_type    = "t3.medium"
+  ecs_desired_capacity = 2
+  ecs_max_size         = 3
+  ecs_min_size         = 1
 }
 
 # Deploy a specific web application within the created ECS environment.
@@ -84,7 +82,6 @@ module "api_service_1" {
   memory                       = 1024
   container_environment_variables = [
     { name = "APP_ENV", value = var.environment },
-    { name = "REDIS_HOST", value = "your-${var.environment}-redis.cache.amazonaws.com" }
   ]
 }
 
