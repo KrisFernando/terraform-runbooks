@@ -32,7 +32,7 @@ module "ecs_cluster" {
 }
 
 module "ecs_container_asg_alb" {
-  source = "../compute/asg-alb"
+  source = "../compute"
 
   environment          = var.environment
   vpc_id               = module.network.vpc_id
