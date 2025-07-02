@@ -2,7 +2,7 @@
 
 ## Cluster Deployment
 
-- Network: VPC, Subnets, IGW, NAT, SG
+- Network: VPC, Subnets, Route Tables, IGW, NAT, SG
 - Cluster: ECS Cluster
 - Compute: ALB, ASG, EC2
 
@@ -11,3 +11,18 @@
 - Compute: S3 Bucket with Static Web Hosting
 - CDN: CloudFront
 - SSL: Certificate Manager (Sectigo import)
+- Security: IAM Role for GitHub (S3 & CloudFront)
+
+## Dynamic Website Deployment
+
+- Container Image: ECR Repository
+- Versioning: ECS Task Definition
+- Compute: ECS Service
+- Security: IAM Role for GitHub (ECR & ECS)
+
+## API Deployment
+
+- Container Image: ECR Repository
+- Versioning: ECS Task Definition
+- Compute: ECS Service
+- Security: IAM Role for GitHub (ECR & ECS)
