@@ -1,8 +1,26 @@
-# modules/full-ecs-environment/main.tf
+# runbooks/cluster/main.tf
 # This module orchestrates the deployment of a complete ECS environment,
 # including VPC, subnets, internet gateway, NAT gateways, security groups,
 # the ECS cluster itself, and optionally Auto Scaling Group/Load Balancer
 # for EC2 container instances.
+
+# Define the AWS provider for this deployment.
+# The region variable would be set via CLI, environment variable, or a .tfvars file.
+provider "aws" {
+  region = var.aws_region
+}
+
+# Configure the Terraform remote backend for state management.
+# The bucket and key should be unique per environment/deployment.
+terraform {
+  backend "s3" {
+    bucket         = "${var.state_file_bucket}" # Dynamic bucket name based on environment
+    key            = "${project-name}/${var.environment}/${project-name}-tf-state-file.tfstate"
+    region         = var.aws_region # State bucket region (can be different from resource region)
+    encrypt        = true
+    dynamodb_table = "${project-name}-tf-state-lock-db-${var.environment}" # Dynamic DynamoDB table
+  }
+}
 
 # Call the network module to set up VPC, subnets, etc.
 module "network" {
