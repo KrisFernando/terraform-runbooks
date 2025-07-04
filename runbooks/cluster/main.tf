@@ -13,12 +13,20 @@ provider "aws" {
 # Configure the Terraform remote backend for state management.
 # The bucket and key should be unique per environment/deployment.
 terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 6.2.0"
+    }
+  }
+  required_version = "~> 1.12.2"
+
   backend "s3" {
-    bucket         = "${var.state_file_bucket}" # Dynamic bucket name based on environment
-    key            = "${var.project-name}/${var.environment}/${var.project-name}-tf-state-file.tfstate"
-    region         = var.aws_region # State bucket region (can be different from resource region)
+    bucket         = "tf-configuration-statefiles-2025-07-04-xasdf" # Dynamic bucket name based on environment
+    key            = "project-a/dev/project-a-tf-state-file.tfstate"
+    region         = "us-east-1" # State bucket region (can be different from resource region)
     encrypt        = true
-    dynamodb_table = "${var.environment}-${project-name}-tf-state-lock-db" # Dynamic DynamoDB table
+    use_lockfile = true
   }
 }
 
@@ -26,21 +34,21 @@ terraform {
 module "network" {
   source = "../../modules/network" # Relative path to the network module
 
+  environment          = var.environment
+  project_name       = var.project_name
   vpc_cidr_block     = var.vpc_cidr_block
   public_subnets     = var.public_subnets
   private_subnets    = var.private_subnets
   availability_zones = var.availability_zones
-  environment        = var.environment
-  project_name       = var.project_name
 }
 
 module "ecs_container_asg_alb" {
   source = "../../modules/compute"
 
   environment          = var.environment
+  project_name       = var.project_name
   vpc_id               = module.network.vpc_id
   subnet_ids           = module.network.private_subnet_ids # Or public, depending on architecture
-  project_name       = var.project_name
   alb_security_group_id = module.common_security_groups.alb_security_group_id
   instance_security_group_ids = [module.common_security_groups.ecs_instance_sg_id] # Example SG output
   instance_type        = var.ecs_instance_type
