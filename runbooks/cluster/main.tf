@@ -23,7 +23,7 @@ terraform {
 
   backend "s3" {
     bucket         = "tf-configuration-statefiles-2025-07-04-xasdf" # Dynamic bucket name based on environment
-    key            = "project-a/dev/project-a-tf-state-file.tfstate"
+    key            = "project-a/project-a-tf-state-file.tfstate"
     region         = "us-east-1" # State bucket region (can be different from resource region)
     encrypt        = true
     use_lockfile = true
@@ -34,7 +34,7 @@ terraform {
 module "network" {
   source = "../../modules/network" # Relative path to the network module
 
-  environment          = var.environment
+  environment          = local.environment
   project_name       = var.project_name
   vpc_cidr_block     = var.vpc_cidr_block
   public_subnets     = var.public_subnets
@@ -45,7 +45,7 @@ module "network" {
 module "ecs_container_asg_alb" {
   source = "../../modules/compute"
 
-  environment          = var.environment
+  environment          = local.environment
   project_name       = var.project_name
   vpc_id               = module.network.vpc_id
   subnet_ids           = module.network.private_subnet_ids # Or public, depending on architecture
@@ -65,7 +65,7 @@ module "common_security_groups" {
 
   vpc_id      = module.network.vpc_id
   project_name = var.project_name
-  environment = var.environment
+  environment = local.environment
 }
 
 # Call the ECS cluster module to create the ECS cluster resource.
@@ -73,12 +73,12 @@ module "ecs_cluster" {
   source = "../../modules/ecs-cluster" # Relative path to the ecs-cluster module
 
   project_name = var.project_name
-  environment  = var.environment
+  environment  = local.environment
 }
 
 module "github_provider" {
   source = "../../modules/iam/github-oidc-provider"
 
   project_name = var.project_name
-  environment = var.environment
+  environment = local.environment
 }
