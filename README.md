@@ -5,6 +5,7 @@
 - Network: VPC, Subnets, Route Tables, IGW, NAT, SG
 - Cluster: ECS Cluster
 - Compute: ALB, ASG, EC2
+- Security: Security Group
 
 ## Static Website Deployment
 
@@ -18,11 +19,11 @@
 - Container Image: ECR Repository
 - Versioning: ECS Task Definition
 - Compute: ECS Service
-- Security: IAM Role for GitHub (ECR & ECS)
+- Security: Security Group, IAM Role for GitHub (ECR & ECS)
 
 ## API Deployment
 
 - Container Image: ECR Repository
 - Versioning: ECS Task Definition
 - Compute: ECS Service
-- Security: IAM Role for GitHub (ECR & ECS)
+- Security: Security Group, IAM Role for GitHub (ECR & ECS)
