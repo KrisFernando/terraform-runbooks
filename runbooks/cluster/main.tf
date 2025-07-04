@@ -8,7 +8,7 @@
 # The region variable would be set via CLI, environment variable, or a .tfvars file.
 provider "aws" {
   region = var.aws_region
-}
+} 
 
 # Configure the Terraform remote backend for state management.
 # The bucket and key should be unique per environment/deployment.
