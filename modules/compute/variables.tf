@@ -14,13 +14,8 @@ variable "subnet_ids" {
   type        = list(string)
 }
 
-variable "alb_name" {
-  description = "The name for the Application Load Balancer."
-  type        = string
-}
-
-variable "target_group_name" {
-  description = "The name for the ALB Target Group."
+variable "project_name" {
+  description = "The name of the Project."
   type        = string
 }
 

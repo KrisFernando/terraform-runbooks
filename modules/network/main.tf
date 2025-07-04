@@ -8,7 +8,7 @@ resource "aws_vpc" "main" {
   enable_dns_support   = true
 
   tags = {
-    Name        = "${var.environment}-vpc"
+    Name        = "${var.environment}-${var.project_name}-vpc"
     Environment = var.environment
   }
 }
@@ -17,7 +17,7 @@ resource "aws_internet_gateway" "main" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name        = "${var.environment}-igw"
+    Name        = "${var.environment}-${var.project_name}-igw"
     Environment = var.environment
   }
 }
@@ -31,7 +31,7 @@ resource "aws_subnet" "public" {
   map_public_ip_on_launch = true # Instances in public subnets get public IPs
 
   tags = {
-    Name        = "${var.environment}-public-subnet-${count.index + 1}"
+    Name        = "${var.environment}-${var.project_name}-public-subnet-${count.index + 1}"
     Environment = var.environment
   }
 }
@@ -44,7 +44,7 @@ resource "aws_subnet" "private" {
   availability_zone = var.availability_zones[count.index]
 
   tags = {
-    Name        = "${var.environment}-private-subnet-${count.index + 1}"
+    Name        = "${var.environment}-${var.project_name}-private-subnet-${count.index + 1}"
     Environment = var.environment
   }
 }
@@ -54,7 +54,7 @@ resource "aws_route_table" "public" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name        = "${var.environment}-public-rt"
+    Name        = "${var.environment}-${var.project_name}-public-rt"
     Environment = var.environment
   }
 }
@@ -76,7 +76,7 @@ resource "aws_route_table_association" "public" {
 resource "aws_eip" "nat" {
   count = length(var.public_subnets) # One NAT Gateway per public subnet for high availability
   tags = {
-    Name        = "${var.environment}-nat-eip-${count.index + 1}"
+    Name        = "${var.environment}-${var.project_name}-nat-eip-${count.index + 1}"
     Environment = var.environment
   }
 }
@@ -87,7 +87,7 @@ resource "aws_nat_gateway" "main" {
   subnet_id     = aws_subnet.public[count.index].id
 
   tags = {
-    Name        = "${var.environment}-nat-gateway-${count.index + 1}"
+    Name        = "${var.environment}-${var.project_name}-nat-gateway-${count.index + 1}"
     Environment = var.environment
   }
   # Ensure the NAT Gateway is created after the Internet Gateway
@@ -100,7 +100,7 @@ resource "aws_route_table" "private" {
   vpc_id = aws_vpc.main.id
 
   tags = {
-    Name        = "${var.environment}-private-rt-${count.index + 1}"
+    Name        = "${var.environment}-${var.project_name}-private-rt-${count.index + 1}"
     Environment = var.environment
   }
 }

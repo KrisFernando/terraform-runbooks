@@ -4,21 +4,21 @@
 
 # Application Load Balancer
 resource "aws_lb" "main_alb" {
-  name               = "${var.environment}-${var.alb_name}"
+  name               = "${var.environment}-${var.project_name}-alb"
   internal           = var.alb_internal # True for internal ALB, false for public
   load_balancer_type = "application"
   security_groups    = [var.alb_security_group_id]
   subnets            = var.subnet_ids # Can be public or private depending on 'internal' setting
 
   tags = {
-    Name        = "${var.environment}-${var.alb_name}"
+    Name        = "${var.environment}-${var.project_name}-alb"
     Environment = var.environment
   }
 }
 
 # ALB Target Group
 resource "aws_lb_target_group" "main_tg" {
-  name        = "${var.environment}-${var.target_group_name}"
+  name        = "${var.environment}-${var.project_name}-tg"
   port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -35,7 +35,7 @@ resource "aws_lb_target_group" "main_tg" {
   }
 
   tags = {
-    Name        = "${var.environment}-${var.target_group_name}"
+    Name        = "${var.environment}-${var.project_name}-tg"
     Environment = var.environment
   }
 }
@@ -52,14 +52,14 @@ resource "aws_lb_listener" "http" {
   }
 
   tags = {
-    Name        = "${var.environment}-${var.alb_name}-listener-http"
+    Name        = "${var.environment}-${project_name}-listener-http"
     Environment = var.environment
   }
 }
 
 # IAM Role for EC2 instances (if needed for AWS service access)
 resource "aws_iam_role" "ec2_instance_role" {
-  name = "${var.environment}-${var.alb_name}-ec2-role"
+  name = "${var.environment}-${project_name}-ec2-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -76,7 +76,7 @@ resource "aws_iam_role" "ec2_instance_role" {
 }
 
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
-  name = "${var.environment}-${var.alb_name}-ec2-profile"
+  name = "${var.environment}-${project_name}-ec2-profile"
   role = aws_iam_role.ec2_instance_role.name
 }
 
@@ -98,7 +98,7 @@ data "aws_ami" "amazon_linux_2" {
 
 # Launch Template for Auto Scaling Group
 resource "aws_launch_template" "main_lt" {
-  name_prefix   = "${var.environment}-${var.alb_name}-lt-"
+  name_prefix   = "${var.environment}-${var.project_name}-lt"
   image_id      = data.aws_ami.amazon_linux_2.id
   instance_type = var.instance_type
 
@@ -111,7 +111,7 @@ resource "aws_launch_template" "main_lt" {
     sudo amazon-linux-extras install nginx1 -y
     sudo systemctl start nginx
     sudo systemctl enable nginx
-    echo "<h1>Hello from ${var.environment} ${var.alb_name}</h1>" | sudo tee /usr/share/nginx/html/index.html
+    echo "<h1>Hello from ${var.environment} ${var.project_name}</h1>" | sudo tee /usr/share/nginx/html/index.html
   EOF
   )
 
@@ -122,7 +122,7 @@ resource "aws_launch_template" "main_lt" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name        = "${var.environment}-${var.alb_name}-instance"
+      Name        = "${var.environment}-${var.project_name}-instance"
       Environment = var.environment
     }
   }
@@ -134,7 +134,7 @@ resource "aws_launch_template" "main_lt" {
 
 # Auto Scaling Group
 resource "aws_autoscaling_group" "main_asg" {
-  name                 = "${var.environment}-${var.alb_name}-asg"
+  name                 = "${var.environment}-${var.project_name}-asg"
   vpc_zone_identifier  = var.subnet_ids
   desired_capacity     = var.desired_capacity
   max_size             = var.max_size
