@@ -1,4 +1,4 @@
-# modules/full-ecs-environment/variables.tf
+# modules/cluster/variables.tf
 variable "environment" {
   description = "The deployment environment (e.g., 'dev', 'prod')."
   type        = string
@@ -29,8 +29,8 @@ variable "availability_zones" {
   type        = list(string)
 }
 
-variable "cluster_name" {
-  description = "The name of the ECS cluster to create."
+variable "project_name" {
+  description = "The name of the Project."
   type        = string
 }
 

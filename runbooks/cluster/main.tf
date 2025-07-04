@@ -15,10 +15,10 @@ provider "aws" {
 terraform {
   backend "s3" {
     bucket         = "${var.state_file_bucket}" # Dynamic bucket name based on environment
-    key            = "${project-name}/${var.environment}/${project-name}-tf-state-file.tfstate"
+    key            = "${var.project-name}/${var.environment}/${var.project-name}-tf-state-file.tfstate"
     region         = var.aws_region # State bucket region (can be different from resource region)
     encrypt        = true
-    dynamodb_table = "${project-name}-tf-state-lock-db-${var.environment}" # Dynamic DynamoDB table
+    dynamodb_table = "${var.environment}-${project-name}-tf-state-lock-db" # Dynamic DynamoDB table
   }
 }
 
@@ -31,6 +31,7 @@ module "network" {
   private_subnets    = var.private_subnets
   availability_zones = var.availability_zones
   environment        = var.environment
+  project_name       = var.project_name
 }
 
 module "ecs_container_asg_alb" {
@@ -39,8 +40,7 @@ module "ecs_container_asg_alb" {
   environment          = var.environment
   vpc_id               = module.network.vpc_id
   subnet_ids           = module.network.private_subnet_ids # Or public, depending on architecture
-  alb_name             = "${var.environment}-ecs-container-alb"
-  target_group_name    = "${var.environment}-ecs-container-tg"
+  project_name       = var.project_name
   alb_security_group_id = module.common_security_groups.alb_security_group_id
   instance_security_group_ids = [module.common_security_groups.ecs_instance_sg_id] # Example SG output
   instance_type        = var.ecs_instance_type
@@ -56,6 +56,7 @@ module "common_security_groups" {
   source = "../../modules/security-group" # Relative path to the security-group module
 
   vpc_id      = module.network.vpc_id
+  project_name = var.project_name
   environment = var.environment
 }
 
@@ -63,6 +64,13 @@ module "common_security_groups" {
 module "ecs_cluster" {
   source = "../../modules/ecs-cluster" # Relative path to the ecs-cluster module
 
-  cluster_name = var.cluster_name
+  project_name = var.project_name
   environment  = var.environment
+}
+
+module "github_provider" {
+  source = "../../modules/iam/github-oidc-provider"
+
+  project_name = var.project_name
+  environment = var.environment
 }

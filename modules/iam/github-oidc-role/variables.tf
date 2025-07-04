@@ -4,6 +4,11 @@ variable "environment" {
   type        = string
 }
 
+variable "project_name" {
+  description = "The name of the Project."
+  type        = string
+}
+
 variable "github_organization" {
   description = "The GitHub organization name (e.g., 'my-company')."
   type        = string

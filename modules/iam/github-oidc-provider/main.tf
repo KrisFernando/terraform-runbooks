@@ -3,9 +3,6 @@
 # that GitHub Actions can assume to perform actions in your AWS account.
 # This allows for secure, keyless authentication for your CI/CD pipelines.
 
-# Data source to get the AWS partition (e.g., aws, aws-cn, aws-us-gov)
-data "aws_partition" "current" {}
-
 # Create the IAM OIDC provider for GitHub
 resource "aws_iam_openid_connect_provider" "github" {
   url = "https://token.actions.githubusercontent.com"
@@ -20,7 +17,7 @@ resource "aws_iam_openid_connect_provider" "github" {
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780fa86"]
 
   tags = {
-    Name        = "github-oidc-provider"
+    Name        = "${var.environment}-${var.project_name}-github-oidc-provider"
     Environment = var.environment
   }
 }

@@ -1,6 +1,6 @@
 # modules/ecs-cluster/variables.tf
-variable "cluster_name" {
-  description = "The name of the ECS cluster."
+variable "project_name" {
+  description = "The name of the Project."
   type        = string
 }
 

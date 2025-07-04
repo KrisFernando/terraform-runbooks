@@ -34,6 +34,11 @@ output "ecs_task_security_group_id" {
   value       = module.common_security_groups.ecs_task_security_group_id
 }
 
+output "github_provider_arn" {
+  description = "The ARN of the GitHub OIDC provider."
+  value = module.github_provider.github_provider_arn
+}
+
 /*
 # If using EC2 launch type for ECS instances, uncomment these outputs:
 output "ecs_container_asg_name" {
