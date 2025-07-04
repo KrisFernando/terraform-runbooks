@@ -9,7 +9,7 @@
 provider "aws" {
   region = var.aws_region
 }
- 
+
 # Configure the Terraform remote backend for state management.
 # The bucket and key should be unique per environment/deployment.
 terraform {
