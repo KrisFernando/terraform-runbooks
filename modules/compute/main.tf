@@ -52,14 +52,14 @@ resource "aws_lb_listener" "http" {
   }
 
   tags = {
-    Name        = "${var.environment}-${project_name}-listener-http"
+    Name        = "${var.environment}-${var.project_name}-listener-http"
     Environment = var.environment
   }
 }
 
 # IAM Role for EC2 instances (if needed for AWS service access)
 resource "aws_iam_role" "ec2_instance_role" {
-  name = "${var.environment}-${project_name}-ec2-role"
+  name = "${var.environment}-${var.project_name}-ec2-role"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -76,7 +76,7 @@ resource "aws_iam_role" "ec2_instance_role" {
 }
 
 resource "aws_iam_instance_profile" "ec2_instance_profile" {
-  name = "${var.environment}-${project_name}-ec2-profile"
+  name = "${var.environment}-${var.project_name}-ec2-profile"
   role = aws_iam_role.ec2_instance_role.name
 }
 

@@ -5,6 +5,12 @@ variable "aws_region" {
   default = "us-east-1"
 }
 
+variable "project_name" {
+  description = "The name of the Project."
+  type        = string
+  default = "product-a"
+}
+
 variable "vpc_cidr_block" {
   description = "CIDR block for the VPC."
   type        = string
@@ -27,12 +33,6 @@ variable "availability_zones" {
   description = "List of availability zones to use."
   type        = list(string)
   default = [ "us-east-1a", "us-east-1b", "us-east-1c" ]
-}
-
-variable "project_name" {
-  description = "The name of the Project."
-  type        = string
-  default = "product-a"
 }
 
 variable "ecs_instance_type" {
