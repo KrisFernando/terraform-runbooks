@@ -1,0 +1,132 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: "CloudFormation template to create S3 bucket, IAM user, and policies for Terraform"
+
+Parameters:
+  BucketName:
+    Type: String
+    Default: "tf-configuration-statefiles-2025-07-04-xasdf"
+    Description: "S3 bucket name for Terraform state (must be globally unique)"
+
+  TerraformUserName:
+    Type: String
+    Default: "terraform-user"
+    Description: "IAM user name for Terraform operations"
+
+Resources:
+  # S3 Bucket for Terraform State
+  TerraformStateBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub "${BucketName}"
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      VersioningConfiguration:
+        Status: Enabled
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteOldVersions
+            Status: Enabled
+            NoncurrentVersionExpirationInDays: 30
+      Tags:
+        - Key: Name
+          Value: !Sub "${BucketName}"
+        - Key: Purpose
+          Value: "Terraform State Storage"
+
+  # IAM User for Terraform
+  TerraformUser:
+    Type: AWS::IAM::User
+    Properties:
+      UserName: !Ref TerraformUserName
+      Tags:
+        - Key: Name
+          Value: !Sub "${TerraformUserName}"
+        - Key: Purpose
+          Value: "Terraform Operations"
+
+  # IAM Policy for S3 State Bucket Access
+  TerraformS3Policy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "${TerraformUserName}-s3-policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:GetObject
+              - s3:PutObject
+              - s3:DeleteObject
+            Resource: !Sub "${TerraformStateBucket.Arn}/*"
+          - Effect: Allow
+            Action:
+              - s3:ListBucket
+              - s3:GetBucketLocation
+              - s3:GetBucketVersioning
+            Resource: !Sub "${TerraformStateBucket.Arn}"
+      Users:
+        - !Ref TerraformUser
+
+  # Administrator Access Policy for Terraform
+  TerraformAdminPolicy:
+    Type: AWS::IAM::Policy
+    Properties:
+      PolicyName: !Sub "${TerraformUserName}-admin-policy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Action: "*"
+            Resource: "*"
+      Users:
+        - !Ref TerraformUser
+
+  # Access Keys for Terraform User
+  TerraformUserAccessKey:
+    Type: AWS::IAM::AccessKey
+    Properties:
+      UserName: !Ref TerraformUser
+
+Outputs:
+  TerraformStateBucketName:
+    Description: "Name of the S3 bucket for Terraform state"
+    Value: !Ref TerraformStateBucket
+    Export:
+      Name: !Sub "TerraformStateBucket"
+
+  TerraformStateBucketArn:
+    Description: "ARN of the S3 bucket for Terraform state"
+    Value: !GetAtt TerraformStateBucket.Arn
+    Export:
+      Name: !Sub "TerraformStateBucketArn"
+
+  TerraformUserName:
+    Description: "Name of the IAM user for Terraform"
+    Value: !Ref TerraformUser
+    Export:
+      Name: !Sub "TerraformUser"
+
+  TerraformUserArn:
+    Description: "ARN of the IAM user for Terraform"
+    Value: !GetAtt TerraformUser.Arn
+    Export:
+      Name: !Sub "TerraformUserArn"
+
+  TerraformAccessKeyId:
+    Description: "Access Key ID for Terraform user"
+    Value: !Ref TerraformUserAccessKey
+    Export:
+      Name: !Sub "TerraformAccessKeyId"
+
+  TerraformSecretAccessKey:
+    Description: "Secret Access Key for Terraform user (store securely)"
+    Value: !GetAtt TerraformUserAccessKey.SecretAccessKey
+    Export:
+      Name: !Sub "TerraformSecretAccessKey"

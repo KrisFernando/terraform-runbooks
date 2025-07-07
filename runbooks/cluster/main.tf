@@ -50,7 +50,7 @@ module "ecs_container_asg_alb" {
   vpc_id               = module.network.vpc_id
   subnet_ids           = module.network.private_subnet_ids # Or public, depending on architecture
   alb_security_group_id = module.common_security_groups.alb_security_group_id
-  instance_security_group_ids = [module.common_security_groups.ecs_instance_sg_id] # Example SG output
+  instance_security_group_ids = [module.common_security_groups.ecs_task_security_group_id] # Example SG output
   instance_type        = var.ecs_instance_type
   desired_capacity     = var.ecs_desired_capacity
   max_size             = var.ecs_max_size
