@@ -30,7 +30,7 @@ resource "aws_security_group" "alb_sg" {
 
 resource "aws_security_group" "ecs_task_sg" {
   name        = "${var.environment}-${var.project_name}-ecs-task-sg"
-  description = "Security group for ECS Fargate tasks"
+  description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
   # Allow inbound from ALB
@@ -56,33 +56,3 @@ resource "aws_security_group" "ecs_task_sg" {
     Environment = var.environment
   }
 }
-
-# Example: Database security group (if databases are managed by Terraform)
-/*
-resource "aws_security_group" "rds_sg" {
-  name        = "${var.environment}-rds-sg"
-  description = "Security group for RDS instances"
-  vpc_id      = var.vpc_id
-
-  ingress {
-    from_port       = 5432 # PostgreSQL example
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.ecs_task_sg.id] # Allow from ECS tasks
-    description     = "Allow database access from ECS tasks"
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow all outbound traffic"
-  }
-
-  tags = {
-    Name        = "${var.environment}-rds-sg"
-    Environment = var.environment
-  }
-}
-*/

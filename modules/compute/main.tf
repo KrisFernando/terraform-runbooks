@@ -80,30 +80,42 @@ resource "aws_iam_instance_profile" "ec2_instance_profile" {
   role = aws_iam_role.ec2_instance_role.name
 }
 
-# Data source to get the latest Amazon Linux 2 AMI
-data "aws_ami" "amazon_linux_2" {
+# Data source to get the latest Amazon Linux 2023 AMI with ECS Compatability
+data "aws_ami" "amazon_linux_2023_ecs" {
   most_recent = true
   owners      = ["amazon"]
 
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+    values = ["al2023-ami-ecs-*-x86_64-*"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
   }
 
   filter {
     name   = "virtualization-type"
     values = ["hvm"]
   }
+
+  filter {
+    name   = "state"
+    values = ["available"]
+  }
+
 }
 
 # Launch Template for Auto Scaling Group
 resource "aws_launch_template" "main_lt" {
   name_prefix   = "${var.environment}-${var.project_name}-lt"
-  image_id      = data.aws_ami.amazon_linux_2.id
+  image_id      = data.aws_ami.amazon_linux_2023_ecs.id
   instance_type = var.instance_type
 
   vpc_security_group_ids = var.instance_security_group_ids
 
+/*
   # Example user data script to install Nginx
   user_data = base64encode(<<-EOF
     #!/bin/bash
@@ -114,6 +126,7 @@ resource "aws_launch_template" "main_lt" {
     echo "<h1>Hello from ${var.environment} ${var.project_name}</h1>" | sudo tee /usr/share/nginx/html/index.html
   EOF
   )
+*/
 
   iam_instance_profile {
     name = aws_iam_instance_profile.ec2_instance_profile.name
@@ -122,7 +135,7 @@ resource "aws_launch_template" "main_lt" {
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name        = "${var.environment}-${var.project_name}-instance"
+      Name        = "${var.environment}-${var.project_name}-ec2"
       Environment = var.environment
     }
   }
