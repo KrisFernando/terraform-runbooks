@@ -18,7 +18,7 @@ resource "aws_lb" "main_alb" {
 
 # ALB Target Group
 resource "aws_lb_target_group" "main_tg" {
-  name        = "tg-${var.project_name}-${var.environment}"
+  name        = "alb-tg-${var.project_name}-${var.environment}"
   port        = var.container_port
   protocol    = "HTTP"
   vpc_id      = var.vpc_id
@@ -35,7 +35,7 @@ resource "aws_lb_target_group" "main_tg" {
   }
 
   tags = {
-    Name        = "tg-${var.project_name}-${var.environment}"
+    Name        = "alb-tg-${var.project_name}-${var.environment}"
     Environment = var.environment
   }
 }
@@ -109,7 +109,7 @@ data "aws_ami" "amazon_linux_2023_ecs" {
 
 # Launch Template for Auto Scaling Group
 resource "aws_launch_template" "main_lt" {
-  name_prefix   = "lt-${var.project_name}-${var.environment}"
+  name_prefix   = "asg-lt-${var.project_name}-${var.environment}"
   image_id      = data.aws_ami.amazon_linux_2023_ecs.id
   instance_type = var.instance_type
 

@@ -87,7 +87,7 @@ resource "aws_nat_gateway" "main" {
   subnet_id     = aws_subnet.public[count.index].id
 
   tags = {
-    Name        = "nat-gateway-${count.index + 1}-${var.project_name}-${var.environment}"
+    Name        = "nat-${count.index + 1}-${var.project_name}-${var.environment}"
     Environment = var.environment
   }
   # Ensure the NAT Gateway is created after the Internet Gateway
