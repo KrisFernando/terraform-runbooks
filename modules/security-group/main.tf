@@ -2,7 +2,7 @@
 # This module defines reusable security groups for various components.
 
 resource "aws_security_group" "alb_sg" {
-  name        = "${var.environment}-${var.project_name}-alb-sg"
+  name        = "alb-sg-${var.project_name}-${var.environment}"
   description = "Security group for Application Load Balancers"
   vpc_id      = var.vpc_id
 
@@ -23,13 +23,13 @@ resource "aws_security_group" "alb_sg" {
   }
 
   tags = {
-    Name        = "${var.environment}-${var.project_name}-alb-sg"
+    Name        = "alb-sg-${var.project_name}-${var.environment}"
     Environment = var.environment
   }
 }
 
 resource "aws_security_group" "ecs_task_sg" {
-  name        = "${var.environment}-${var.project_name}-ecs-task-sg"
+  name        = "ecs-task-sg-${var.project_name}-${var.environment}"
   description = "Security group for ECS tasks"
   vpc_id      = var.vpc_id
 
@@ -52,7 +52,7 @@ resource "aws_security_group" "ecs_task_sg" {
   }
 
   tags = {
-    Name        = "${var.environment}-${var.project_name}-ecs-task-sg"
+    Name        = "ecs-task-sg-${var.project_name}-${var.environment}"
     Environment = var.environment
   }
 }

@@ -5,7 +5,7 @@
 
 # IAM Role for GitHub Actions
 resource "aws_iam_role" "github_actions_role" {
-  name = "github-actions-role-${var.environment}-${var.github_repository}"
+  name = "github-actions-role-${var.github_repository}-${var.project_name}-${var.environment}"
 
   # Define the trust policy that allows GitHub Actions to assume this role.
   # The 'sub' condition ensures only specific repositories/workflows can assume.
@@ -29,7 +29,7 @@ resource "aws_iam_role" "github_actions_role" {
   })
 
   tags = {
-    Name        = "${var.environment}-${var.project_name}-github-actions-role"
+    Name        = "github-actions-role-${var.github_repository}-${var.project_name}-${var.environment}"
     Environment = var.environment
     Repository  = "${var.github_organization}/${var.github_repository}"
   }
@@ -40,7 +40,7 @@ resource "aws_iam_role" "github_actions_role" {
 resource "aws_iam_role_policy" "github_actions_policy" {
   count = length(var.policy_statements) > 0 ? 1 : 0 # Only create if policy_statements are provided
 
-  name   = "${aws_iam_role.github_actions_role.name}-policy"
+  name   = "github-actions-role-policy-${var.github_repository}-${var.project_name}-${var.environment}"
   role   = aws_iam_role.github_actions_role.id
   policy = jsonencode({
     Version = "2012-10-17"

@@ -90,6 +90,7 @@ module "github_oidc_role" {
   source = "../modules/iam/github-oidc-role"
 
   environment          = var.environment
+  project_name       = var.project_name
   github_organization  = var.github_organization
   github_repository    = var.github_repository
   # Define specific permissions for this role, e.g., ECR push access
