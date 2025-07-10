@@ -17,7 +17,7 @@ resource "aws_iam_openid_connect_provider" "github" {
   thumbprint_list = ["6938fd4d98bab03faadb97b34396831e3780fa86"]
 
   tags = {
-    Name        = "${var.environment}-${var.project_name}-github-oidc-provider"
+    Name        = "github-oidc-provider-${var.project_name}-${var.environment}"
     Environment = var.environment
   }
 }

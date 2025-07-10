@@ -5,10 +5,10 @@
 # other modules (e.g., 'full-ecs-environment' or called directly).
 
 resource "aws_ecs_cluster" "main" {
-  name = "${var.environment}-${var.project_name}-cluster"
+  name = "ecs-cluster-${var.project_name}-${var.environment}"
 
   tags = {
-    Name        = "${var.environment}-${var.project_name}-cluster"
+    Name        = "ecs-cluster-${var.project_name}-${var.environment}"
     Environment = var.environment
   }
 }

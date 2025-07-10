@@ -11,10 +11,10 @@ variable "state_file_bucket" {
   default = "its-cloud-web-tf-state-bucket"
 }
 
-variable "project-name" {
-  description = "prefix for statefile."
-  type = string
-  default = "main-cluster"
+variable "project_name" {
+  description = "The name of the Project."
+  type        = string
+  default = "product-a"
 }
 
 variable "terraform-state-lock-db" {
