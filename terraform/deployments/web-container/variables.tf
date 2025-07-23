@@ -1,4 +1,23 @@
-# modules/cluster/variables.tf
+# modules/web-app/variables.tf
+variable "project_name" {
+  description = "The name of the Project."
+  type        = string
+  default = "product-a"
+}
+
+variable "remote_state_bucket" {
+  description = "Remote state Bucket Name."
+  type        = string
+  default = "tf-configuration-statefiles"  
+}
+
+variable "remote_state_key" {
+  description = "Remote state Bucket Key."
+  type        = string
+  default = "cluster/cluster-tf-state-file.tfstate"  
+}
+
+
 variable "aws_region" {
   description = "AWS region for the deployment."
   type        = string
